@@ -26,12 +26,12 @@ public class AzureTableStorageService implements Service {
     @Override
     public Player getPlayer(String uuid) {
         try {
-
-            Object o = table.execute(new TableQuery(PlayerTableEntity.class).select(new String[]{"Banned"})).iterator().next();
             TableResult result = table.execute(TableOperation.retrieve(uuid, PlayerTableEntity.ROW_KEY, PlayerTableEntity.class));
-            PlayerTableEntity tableEntity = result.<PlayerTableEntity>getResultAsType();
-            if (tableEntity == null)//Not found
+            if (result.getHttpStatusCode() == 404)
                 return new Player(uuid, false, null, null);
+            if (result.getHttpStatusCode() < 200 || result.getHttpStatusCode() >= 300)
+                return new Player(uuid, null, null, null);
+            PlayerTableEntity tableEntity = result.<PlayerTableEntity>getResultAsType();
             return tableEntity.toPlayer();
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,10 +54,9 @@ public class AzureTableStorageService implements Service {
     }
 
     private Success removePlayer(Player player) throws StorageException {
-        System.out.println(player.getUuid());
         try {
             TableResult result = table.execute(TableOperation.delete(new DynamicTableEntity(player.getUuid(), PlayerTableEntity.ROW_KEY, "*", null)));
-            if (result.getHttpStatusCode() != 204)
+            if (result.getHttpStatusCode() < 200 || result.getHttpStatusCode() >= 300)
                 return new Success(false, "Update returned status code " + result.getHttpStatusCode());
         } catch (TableServiceException e) {
             if (e.getHttpStatusCode() == 404)
@@ -70,7 +69,7 @@ public class AzureTableStorageService implements Service {
     private Success putPlayer(Player player) throws StorageException {
         PlayerTableEntity tableEntity = new PlayerTableEntity(player);
         TableResult result = table.execute(TableOperation.insertOrReplace(tableEntity));
-        if (result.getHttpStatusCode() != 204)
+        if (result.getHttpStatusCode() < 200 || result.getHttpStatusCode() >= 300)
             return new Success(false, "Update returned status code " + result.getHttpStatusCode());
         return new Success(true);
     }

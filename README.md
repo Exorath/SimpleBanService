@@ -34,3 +34,7 @@ The SBS offers an endpoint that replies whether or not a user is banned. The imp
 ```
 - success (boolean): Whether or not the record was updated successfully.
 - err (string)[OPTIONAL]: Error message only responded when the put was not successful.
+##Environment
+AZURE_STORAGE_CONNECTION_STRING	DefaultEndpointsProtocol=https;AccountName={ACCOUNT_NAME};AccountKey={ACCOUNT_KEY}
+TABLE_NAME	{TABLE_NAME}
+PORT	{PORT}

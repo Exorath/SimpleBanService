@@ -8,7 +8,13 @@ import com.google.gson.annotations.SerializedName;
 public class Success {
     @SerializedName("success")
     private boolean success;
+    @SerializedName("err")
+    private String error;
     public Success(boolean success){
         this.success = success;
+    }
+    public Success(boolean success, String error){
+        this.success = success;
+        this.error = error;
     }
 }
